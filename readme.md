@@ -6,4 +6,4 @@ Simple race timer to record multiple racers.
 * download times as csv
 * usable on mobile phone
 
-[You can try it here](docs/index.html).
+[You can try it here](https://edsouthwood.github.io/race-timer/).
