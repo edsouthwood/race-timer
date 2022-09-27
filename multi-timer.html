@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Bolt timer</title>
+  </head>
+  <body>
+
+    <div class="container-fluid">
+    <div id="stopwatch-container">
+        <h1>Stopwatch</h1>
+        <button type="button" class="btn btn-sm" onclick='download(localStorage.getItem("places"),"bolt2022.csv", "text/csv")'>download</button>
+        <div id="stopwatch" class="display-4">00:00:00</div>
+        <button type="button" class="btn btn-danger btn-sm" onclick="reset()">Reset</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="pause()">Pause</button>
+        <button type="button" class="btn btn-primary " onclick="start(true)" id="start-btn">Start</button>
+        <button type="button" class="btn btn-success btn-lg" onclick="record()">Record</button>
+    </div>
+
+    <pre id="race_times"></pre>
+</div>
+    <script>
+        /* declare variables */
+        var stopwatch = document.getElementById("stopwatch");
+        var race_times = document.getElementById("race_times");
+        var startBtn = document.getElementById("start-btn");
+        var timeoutId = null;
+        var ms = 0;
+        var sec = 0;
+        var min = 0;
+        var place = 0;
+        var startTime;
+        var elapsed;
+
+        /* function to keep places on page refresh */
+        window.onload = function() {
+        if (localStorage.getItem("places")){
+            race_times.innerHTML = localStorage.getItem("places");
+            start();
+        }
+        };
+
+        /* function to start stopwatch */
+        function start(flag) {
+            if (flag) {
+                startBtn.disabled = true;
+            }
+
+            /* make a new start time if stopwatch hasn't already been started otherwise retrive old start time*/
+            if (!localStorage.getItem("startTime")) {
+                startTime = Math.floor(new Date().getTime());
+                localStorage.setItem("startTime", startTime);
+            } else {
+                startTime = localStorage.getItem("startTime");
+            }
+ 
+            timeoutId = setTimeout(function() {
+                
+                /*  */
+                elapsed =  new Date().getTime() - startTime;
+                sec = Math.floor(elapsed/1000) % 60;
+                min = Math.floor(elapsed/60000);
+                ms = Math.floor((elapsed % 1000)/10);
+                
+                /* format it nicely */
+                if (ms < 10) {
+                    ms = '0' + ms;
+                }
+                if (sec < 10) {
+                    sec = '0' + sec;
+                }
+                if (min < 10) {
+                    min = '0' + min;
+                }
+                
+                stopwatch.innerHTML = min + ':' + sec + ':' + ms;
+
+                // calling start() function recursivly to continue stopwatch
+                start();
+ 
+            }, 10); // setTimeout delay time 10 milliseconds
+        }
+ 
+        /* function to pause stopwatch */
+        function pause() {
+            clearTimeout(timeoutId);
+            startBtn.disabled = false;
+        }
+ 
+        /* function to reset stopwatch */
+        function reset() {
+            if(confirm("Delete everything?")){
+            ms = 0;
+            sec = 0;
+            min = 0;
+            place = 0;
+            clearTimeout(timeoutId);
+            stopwatch.innerHTML = '00:00:00';
+            startBtn.disabled = false;
+            localStorage.removeItem("startTime");
+            localStorage.removeItem("places");
+            race_times.innerHTML = "";
+            }
+        }
+
+        /* function to record the places */
+            function record() {
+            place++
+            race_times.innerHTML += place +", "+stopwatch.innerHTML + " \n"
+            localStorage.setItem("places", race_times.innerHTML);
+        }
+
+        // function to download the race times
+        function download(content, filename, contentType)
+        {
+            if(!contentType) contentType = 'application/octet-stream';
+                var a = document.createElement('a');
+                var blob = new Blob([content], {'type':contentType});
+                a.href = window.URL.createObjectURL(blob);
+                a.download = filename;
+                a.click();
+        }
+
+    </script>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+</html>
